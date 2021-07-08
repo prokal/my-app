@@ -1,5 +1,11 @@
 node{
 
+   def tomcatIp = '18.222.211.207'
+   def tomcatUser = 'ec2-user'
+   def stopTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/apache-tomcat-8.5.69/bin/shutdown.sh"
+   def startTomcat = "ssh ${tomcatUser}@${tomcatIp} /opt/apache-tomcat-8.5.69/bin/startup.sh"
+   def copyWar = "scp -o StrictHostKeyChecking=no target/myweb.war ${tomcatUser}@${tomcatIp}:/opt/apache-tomcat-8.5.69/webapps/"
+   
     stage ('SCM Checkout')
         {
             git 'https://github.com/prokal/my-app'
@@ -9,4 +15,12 @@ node{
          def mvnhome=tool name: 'maven-pk', type: 'maven'
           sh "${mvnhome}/bin/mvn package"
         }
+     stage('Deploy Dev'){
+	   sh 'mv target/myweb*.war target/myweb.war' 
+       sshagent(['tomcat-deploy']) {
+			sh "${stopTomcat}"
+			sh "${copyWar}"
+			sh "${startTomcat}"
+	   } 
+        
 }
