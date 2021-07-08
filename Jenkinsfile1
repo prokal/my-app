@@ -1,4 +1,5 @@
-node{
+node
+{
 
    def tomcatIp = '18.222.211.207'
    def tomcatUser = 'ec2-user'
@@ -15,12 +16,14 @@ node{
          def mvnhome=tool name: 'maven-pk', type: 'maven'
           sh "${mvnhome}/bin/mvn package"
         }
-     stage('Deploy Dev'){
+     stage('Deploy Dev')
+        {
 	   sh 'mv target/myweb*.war target/myweb.war' 
-       sshagent(['tomcat-deploy']) {
+       sshagent(['tomcat-deploy']) 
+               {
 			sh "${stopTomcat}"
 			sh "${copyWar}"
 			sh "${startTomcat}"
-	   } 
-        
+	       } 
+        }   
 }
